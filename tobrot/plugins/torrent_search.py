@@ -91,7 +91,7 @@ async def return_search(query, page=1, sukebei=False):
         except IndexError:
             return '', len(results), ttl
 
-message_info = dict()
+message_info = {}
 ignore = set()
 
 
@@ -117,7 +117,7 @@ async def init_search(client, message, query, sukebei):
         await message.reply_text('No results found')
     else:
         buttons = [InlineKeyboardButton(
-            f'1/{pages}', 'nyaa_nop'), InlineKeyboardButton(f'Next', 'nyaa_next')]
+            f'1/{pages}', 'nyaa_nop'), InlineKeyboardButton('Next', 'nyaa_next')]
         if pages == 1:
             buttons.pop()
         reply = await message.reply_text(result, reply_markup=InlineKeyboardMarkup([
@@ -162,8 +162,12 @@ async def nyaa_callback(client, callback_query):
                 await callback_query.answer('...no', cache_time=3600)
                 return
             text, pages, ttl = await return_search(query, current_page, sukebei)
-        buttons = [InlineKeyboardButton(f'Prev', 'nyaa_back'), InlineKeyboardButton(
-            f'{current_page}/{pages}', 'nyaa_nop'), InlineKeyboardButton(f'Next', 'nyaa_next')]
+        buttons = [
+            InlineKeyboardButton('Prev', 'nyaa_back'),
+            InlineKeyboardButton(f'{current_page}/{pages}', 'nyaa_nop'),
+            InlineKeyboardButton('Next', 'nyaa_next'),
+        ]
+
         if ttl_ended:
             buttons = [InlineKeyboardButton('Search Expired', 'nyaa_nop')]
         else:
@@ -234,11 +238,12 @@ class TorrentSearch:
 
     async def update_message(self):
         prevBtn = InlineKeyboardButton(
-            f"Prev", callback_data=f"{self.command}_previous")
+            'Prev', callback_data=f"{self.command}_previous"
+        )
+
         delBtn = InlineKeyboardButton(
             f"{emoji.CROSS_MARK}", callback_data=f"{self.command}_delete")
-        nextBtn = InlineKeyboardButton(
-            f"Next", callback_data=f"{self.command}_next")
+        nextBtn = InlineKeyboardButton('Next', callback_data=f"{self.command}_next")
 
         inline = []
         if (self.index != 0):
@@ -360,10 +365,10 @@ torrents_dict = {
     'ts': {'source': f"{TORRENT_API}/all/", 'result_str': RESULT_STR_ALL}
 }
 
-torrent_handlers = []
-for command, value in torrents_dict.items():
-    torrent_handlers.append(TorrentSearch(
-        command, value['source'], value['result_str']))
+torrent_handlers = [
+    TorrentSearch(command, value['source'], value['result_str'])
+    for command, value in torrents_dict.items()
+]
 
 
 async def searchhelp(self, message):

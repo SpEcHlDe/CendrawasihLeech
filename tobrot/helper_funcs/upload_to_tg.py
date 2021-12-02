@@ -44,10 +44,8 @@ from tobrot.helper_funcs.split_large_files import split_large_files
 def getFolderSize(p):
     prepend = partial(os.path.join, p)
     return sum(
-        [
-            (os.path.getsize(f) if os.path.isfile(f) else getFolderSize(f))
-            for f in map(prepend, os.listdir(p))
-        ]
+        os.path.getsize(f) if os.path.isfile(f) else getFolderSize(f)
+        for f in map(prepend, os.listdir(p))
     )
 
 
@@ -88,54 +86,53 @@ async def upload_to_tg(
                 edit_media,
                 yt_thumb,
             )
-    else:
-        if os.path.getsize(local_file_name) > TG_MAX_FILE_SIZE:
-            LOGGER.info("TODO")
-            d_f_s = humanbytes(os.path.getsize(local_file_name))
-            i_m_s_g = await message.reply_text(
-                "Telegram does not support uploading this file.\n"
-                f"Detected File Size: `{d_f_s}` \n"
-                "Trying to split the files"
-            )
-            splitted_dir = await split_large_files(local_file_name)
-            totlaa_sleif = os.listdir(splitted_dir)
-            totlaa_sleif.sort()
-            number_of_files = len(totlaa_sleif)
-            LOGGER.info(totlaa_sleif)
-            ba_se_file_name = os.path.basename(local_file_name)
-            await i_m_s_g.edit_text(
-                f"Detected File Size: `{d_f_s}` \n"
-                f"<code>{ba_se_file_name}</code> splitted into `{number_of_files}` files.\n"
-                "Trying to upload to Telegram, now ..."
-            )
-            for le_file in totlaa_sleif:
-                # recursion: will this FAIL somewhere?
-                await upload_to_tg(
-                    message,
-                    os.path.join(splitted_dir, le_file),
-                    from_user,
-                    dict_contatining_uploaded_files,
-                    client,
-                    edit_media,
-                    yt_thumb,
-                )
-        else:
-            sizze = os.path.getsize(local_file_name)
-            sent_message = await upload_single_file(
+    elif os.path.getsize(local_file_name) > TG_MAX_FILE_SIZE:
+        LOGGER.info("TODO")
+        d_f_s = humanbytes(os.path.getsize(local_file_name))
+        i_m_s_g = await message.reply_text(
+            "Telegram does not support uploading this file.\n"
+            f"Detected File Size: `{d_f_s}` \n"
+            "Trying to split the files"
+        )
+        splitted_dir = await split_large_files(local_file_name)
+        totlaa_sleif = os.listdir(splitted_dir)
+        totlaa_sleif.sort()
+        number_of_files = len(totlaa_sleif)
+        LOGGER.info(totlaa_sleif)
+        ba_se_file_name = os.path.basename(local_file_name)
+        await i_m_s_g.edit_text(
+            f"Detected File Size: `{d_f_s}` \n"
+            f"<code>{ba_se_file_name}</code> splitted into `{number_of_files}` files.\n"
+            "Trying to upload to Telegram, now ..."
+        )
+        for le_file in totlaa_sleif:
+            # recursion: will this FAIL somewhere?
+            await upload_to_tg(
                 message,
-                local_file_name,
-                caption_str,
+                os.path.join(splitted_dir, le_file),
                 from_user,
+                dict_contatining_uploaded_files,
                 client,
                 edit_media,
                 yt_thumb,
             )
-            if sent_message is not None:
-                dict_contatining_uploaded_files[
-                    os.path.basename(local_file_name)
-                ] = sent_message.message_id
-            else:
-                return
+    else:
+        sizze = os.path.getsize(local_file_name)
+        sent_message = await upload_single_file(
+            message,
+            local_file_name,
+            caption_str,
+            from_user,
+            client,
+            edit_media,
+            yt_thumb,
+        )
+        if sent_message is not None:
+            dict_contatining_uploaded_files[
+                os.path.basename(local_file_name)
+            ] = sent_message.message_id
+        else:
+            return
     # await message.delete()
     return dict_contatining_uploaded_files
 
@@ -201,11 +198,8 @@ async def upload_to_gdrive(file_upload, message, messa_ge, g_id):
         # os.remove("filter.txt")
         gauti = f"https://drive.google.com/file/d/{manssizz}/view?usp=drivesdk"
         gjay = size(os.path.getsize(file_upload))
-        button = []
-        button.append(
-            [pyrogram.InlineKeyboardButton(
-                text="CloudUrl", url=f"{gauti}")]
-        )
+        button = [[pyrogram.InlineKeyboardButton(
+                text="CloudUrl", url=f"{gauti}")]]
         if INDEX_LINK:
             indexurl = f"{INDEX_LINK}/{os.path.basename(file_upload)}"
             tam_link = requests.utils.requote_uri(indexurl)
@@ -224,7 +218,6 @@ async def upload_to_gdrive(file_upload, message, messa_ge, g_id):
             reply_markup=button_markup, disable_web_page_preview=True
         )
         os.remove(file_upload)
-        await del_it.delete()
     else:
         tt = os.path.join(destination, os.path.basename(file_upload))
         LOGGER.info(tt)
@@ -270,11 +263,8 @@ async def upload_to_gdrive(file_upload, message, messa_ge, g_id):
         gautii = f"https://drive.google.com/folderview?id={manssizz}"
         gjay = size(getFolderSize(file_upload))
         LOGGER.info(gjay)
-        button = []
-        button.append(
-            [pyrogram.InlineKeyboardButton(
-                text="CloudUrl", url=f"{gautii}")]
-        )
+        button = [[pyrogram.InlineKeyboardButton(
+                text="CloudUrl", url=f"{gautii}")]]
         if INDEX_LINK:
             indexurl = f"{INDEX_LINK}/{os.path.basename(file_upload)}/"
             tam_link = requests.utils.requote_uri(indexurl)
@@ -293,7 +283,8 @@ async def upload_to_gdrive(file_upload, message, messa_ge, g_id):
             reply_markup=button_markup, disable_web_page_preview=True
         )
         shutil.rmtree(file_upload)
-        await del_it.delete()
+
+    await del_it.delete()
 
 
 #
@@ -447,19 +438,11 @@ async def upload_single_file(
                             start_time,
                         ),
                     )
-                if thumb is not None:
-                    os.remove(thumb)
             elif local_file_name.upper().endswith(("MP3", "M4A", "M4B", "FLAC", "WAV")):
                 metadata = extractMetadata(createParser(local_file_name))
-                duration = 0
-                title = ""
-                artist = ""
-                if metadata.has("duration"):
-                    duration = metadata.get("duration").seconds
-                if metadata.has("title"):
-                    title = metadata.get("title")
-                if metadata.has("artist"):
-                    artist = metadata.get("artist")
+                duration = metadata.get("duration").seconds if metadata.has("duration") else 0
+                title = metadata.get("title") if metadata.has("title") else ""
+                artist = metadata.get("artist") if metadata.has("artist") else ""
                 thumb_image_path = None
                 if os.path.isfile(thumbnail_location):
                     thumb_image_path = await copy_file(
@@ -499,8 +482,6 @@ async def upload_single_file(
                             start_time,
                         ),
                     )
-                if thumb is not None:
-                    os.remove(thumb)
             else:
                 thumb_image_path = None
                 if os.path.isfile(thumbnail_location):
@@ -537,9 +518,8 @@ async def upload_single_file(
                             start_time,
                         ),
                     )
-                if thumb is not None:
-                    os.remove(thumb)
-
+            if thumb is not None:
+                os.remove(thumb)
         except MessageNotModified as oY:
             LOGGER.info(oY)
         except FloodWait as g:

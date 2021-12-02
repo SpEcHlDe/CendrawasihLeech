@@ -43,10 +43,12 @@ async def check_size_g(client, message):
 
 async def g_clearme(client, message):
     inline_keyboard = []
-    ikeyboard = []
-    ikeyboard.append(
-        InlineKeyboardButton("Yes", callback_data=("fuckingdo").encode("UTF-8"))
-    )
+    ikeyboard = [
+        InlineKeyboardButton(
+            "Yes", callback_data=("fuckingdo").encode("UTF-8")
+        )
+    ]
+
     ikeyboard.append(
         InlineKeyboardButton("No", callback_data=("fuckoff").encode("UTF-8"))
     )

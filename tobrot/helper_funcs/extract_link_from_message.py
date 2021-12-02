@@ -37,30 +37,6 @@ async def extract_link(message, type_o_request):
         # elif message.text.lower().endswith(".torrent"):
             # url = await message.download()
 
-    # elif message.text is not None:
-    #     if message.text.lower().startswith("https:") and message.text.lower().endswith(".torrent"):
-    #         url = await message.download()
-    elif message.text is not None:
-        if message.text.lower().endswith(".torrent"):
-            url = await message.download()
-
-        elif "|" in message.text:
-            url_parts = message.text.split("|")
-            if len(url_parts) == 2:
-                url = url_parts[0]
-                custom_file_name = url_parts[1]
-            elif len(url_parts) == 4:
-                url = url_parts[0]
-                custom_file_name = url_parts[1]
-                youtube_dl_username = url_parts[2]
-                youtube_dl_password = url_parts[3]
-
-        elif message.entities is not None:
-            url = extract_url_from_entity(message.entities, message.text)
-
-        else:
-            url = message.text.strip()
-
     elif message.document is not None:
         if message.document.file_name.lower().endswith(".torrent"):
             url = await message.download()

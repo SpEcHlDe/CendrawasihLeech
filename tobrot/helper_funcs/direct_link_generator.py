@@ -144,16 +144,14 @@ def anonfiles(url: str) -> str:
     Based on https://github.com/zevtyardt/lk21
              https://github.com/breakdowns/slam-aria-mirror-bot """
     bypasser = lk21.Bypass()
-    dl_url = bypasser.bypass_anonfiles(url)
-    return dl_url
+    return bypasser.bypass_anonfiles(url)
 
 # Oct 23
 
 
 def mirrored(url: str) -> str:
     bypasser = lk21.Bypass()
-    dl_url = bypasser.bypass_mirrored(url)
-    return dl_url
+    return bypasser.bypass_mirrored(url)
 
 
 def uservideo(url: str) -> str:
@@ -169,14 +167,12 @@ def uservideo(url: str) -> str:
 
 def reupload(url: str) -> str:
     bypasser = lk21.Bypass()
-    dl_url = bypasser.bypass_reupload(url)
-    return dl_url
+    return bypasser.bypass_reupload(url)
 
 
 def filesIm(url: str) -> str:
     bypasser = lk21.Bypass()
-    dl_url = bypasser.bypass_filesIm(url)
-    return dl_url
+    return bypasser.bypass_filesIm(url)
 ###
 
     # Based Slam mirror bot
@@ -192,10 +188,8 @@ def sbembed(text_url: str) -> str:
     #     raise DirectDownloadLinkException("`No sbembed links found`\n")
     bypasser = lk21.Bypass()
     dl_url = bypasser.bypass_sbembed(text_url)
-    lst_link = []
     count = len(dl_url)
-    for i in dl_url:
-        lst_link.append(dl_url[i])
+    lst_link = [dl_url[i] for i in dl_url]
     return lst_link[count-1]
 
 
@@ -215,10 +209,8 @@ def mxplayer(url: str) -> str:
 def fembed(text_url: str) -> str:
     bypasser = lk21.Bypass()
     dl_url = bypasser.bypass_fembed(text_url)
-    lst_link = []
     count = len(dl_url)
-    for i in dl_url:
-        lst_link.append(dl_url[i])
+    lst_link = [dl_url[i] for i in dl_url]
     return lst_link[count-1]
 
 
@@ -331,12 +323,10 @@ def yandex_disk(url: str) -> str:
     try:
         text_url = re.findall(r'\bhttps?://.*yadi\.sk\S+', url)[0]
     except IndexError:
-        reply = "`No Yandex.Disk links found`\n"
-        return reply
+        return "`No Yandex.Disk links found`\n"
     api = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key={}'
     try:
-        dl_url = requests.get(api.format(text_url)).json()['href']
-        return dl_url
+        return requests.get(api.format(text_url)).json()['href']
     except KeyError:
         raise DirectDownloadLinkException(
             "`Error: File not found / Download limit reached`\n")
@@ -369,8 +359,7 @@ def mediafire(url: str) -> str:
         raise DirectDownloadLinkException("`No MediaFire links found`\n")
     page = BeautifulSoup(requests.get(text_url).content, 'lxml')
     info = page.find('a', {'aria-label': 'Download file'})
-    dl_url = info.get('href')
-    return dl_url
+    return info.get('href')
 
 
 def osdn(url: str) -> str:
@@ -400,8 +389,7 @@ def github(url: str) -> str:
         raise DirectDownloadLinkException("`No GitHub Releases links found`\n")
     download = requests.get(text_url, stream=True, allow_redirects=False)
     try:
-        dl_url = download.headers["location"]
-        return dl_url
+        return download.headers["location"]
     except KeyError:
         raise DirectDownloadLinkException("`Error: Can't extract the link`\n")
 
